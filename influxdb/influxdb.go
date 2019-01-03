@@ -17,25 +17,26 @@ func init() {
 	port = env.GetOrDefault("TELEGRAF_PORT", "8086")
 }
 
-func WriteMetrics(measurement string, fields map[string]interface{}, metrics map[string]string) {
+func WriteMetrics(measurement string, fields map[string]interface{}, tag map[string]string) {
 	conn := getInfluxConn()
 	defer conn.Close()
 
 	bp := getDatabase()
-	pt := createPoint(measurement, fields, metrics)
+	pt := createPoint(measurement, fields, tag)
 
 	bp.AddPoint(pt)
 	saveBatchPoint(bp, conn)
 }
 
 //measurement = name of table in influxdb
-//metrics
-func WriteAllMetrics(measurement string, metrics []map[string]string, fields []map[string]interface{}) {
+//fields = name of column and result
+//tags = filters
+func WriteAllMetrics(measurement string, tags []map[string]string, fields []map[string]interface{}) {
 	conn := getInfluxConn()
 	defer conn.Close()
 	bp := getDatabase()
-	for i, m := range metrics {
-		pt := createPoint(measurement, fields[i], m)
+	for i, tag := range tags {
+		pt := createPoint(measurement, fields[i], tag)
 		bp.AddPoint(pt)
 	}
 	saveBatchPoint(bp, conn)
@@ -70,14 +71,15 @@ func getDatabase() client.BatchPoints {
 	return bp
 }
 
-func createPoint(measurement string, fields map[string]interface{}, metrics map[string]string) *client.Point {
-	pt, err := client.NewPoint(measurement, metrics, fields)
+func createPoint(measurement string, fields map[string]interface{}, tags map[string]string) *client.Point {
+	pt, err := client.NewPoint(measurement, tags, fields)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return pt
 }
 
+// Call influxdb api for save data
 func saveBatchPoint(bp client.BatchPoints, conn client.Client) {
 	for {
 		if err := conn.Write(bp); err != nil {
