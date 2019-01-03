@@ -1,0 +1,7 @@
+package: github.com/brunopita/influxdb-client
+import:
+- package: github.com/influxdata/influxdb
+  version: ~1.7.2
+  subpackages:
+  - client/v2
+- package: github.com/brunopita/go-common/commonsys
