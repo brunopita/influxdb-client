@@ -13,8 +13,8 @@ var port string
 
 func init() {
 	var env = commonsys.GetEnvironment()
-	host = env.GetOrDefault("TELEGRAF_HOST", "localhost")
-	port = env.GetOrDefault("TELEGRAF_PORT", "8086")
+	host = env.GetOrDefault("INFLUXDB_HOST", "localhost")
+	port = env.GetOrDefault("INFLUXDB_PORT", "8086")
 }
 
 func WriteMetrics(measurement string, fields map[string]interface{}, tag map[string]string) {
